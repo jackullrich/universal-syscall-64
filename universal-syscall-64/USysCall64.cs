@@ -261,8 +261,6 @@ public unsafe class USysCall64
 
     private delegate long NtProtectVirtualMemory(IntPtr ProcessHandle, ref IntPtr BaseAddress, ref uint NumberOfBytesToProtect, uint NewAccessProtection, ref uint OldAccessProtection);
 
-    private delegate long NtWriteVirtualMemory(IntPtr ProcessHandle, IntPtr BaseAddress, IntPtr Buffer, uint NumberOfBytesToWrite, ref uint NumberOfBytesWritten);
-
     #endregion
 
     public static IntPtr AllocateMemory(IntPtr Address, uint Size, uint AllocType, uint Protect)
@@ -317,33 +315,6 @@ public unsafe class USysCall64
         long ntStatus = ProtectMem((IntPtr)ProcessHandle, ref baseAddress, ref protSize, NewProtection, ref OldProtection);
 
         if (ntStatus != 0)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-
-    public static bool ProtectMemory(IntPtr Address, IntPtr Buffer, uint NumberOfBytesToWrite, ref uint NumberOfBytesWritten)
-    {
-        return WriteMemoryEx((IntPtr)(-1), Address, Buffer, NumberOfBytesToWrite, ref NumberOfBytesWritten);
-    }
-
-    public static bool WriteMemoryEx(IntPtr ProcessHandle, IntPtr Address, IntPtr Buffer, uint NumberOfBytesToWrite, ref uint NumberOfBytesWritten)
-    {
-        var sc = GetSysCallStub(SysCallTable["NtWriteVirtualMemory"]);
-        var WriteMem = AllocRWX<NtWriteVirtualMemory>(sc);
-
-        if (WriteMem == null)
-        {
-            return false;
-        }
-
-        long ntStatus = WriteMem(ProcessHandle, Address, Buffer, NumberOfBytesToWrite, ref NumberOfBytesWritten);
-
-        if (ntStatus != 0 || NumberOfBytesWritten != NumberOfBytesToWrite)
         {
             return false;
         }
